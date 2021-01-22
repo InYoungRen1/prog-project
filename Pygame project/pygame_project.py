@@ -10,6 +10,8 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 TITLE = "<Escape>"
 
+background_image = pygame.image.load("./image/background.png")
+
 # class
 class Player(pygame.sprite.Sprite):
     """ This class represents the player """
@@ -19,7 +21,7 @@ class Player(pygame.sprite.Sprite):
         """ Constructor function """
         super().__init__()
 
-        self.image = pygame.image.load("./images/oomba.png")
+        self.image = pygame.image.load("./image/oomba.png")
         self.rect = self.image.get_rect()
 
         # speed vector of player
@@ -64,17 +66,39 @@ class Player(pygame.sprite.Sprite):
         if self.rect.y >= SCREEN_HEIGHT - self.rect.height and self.vel_y >= 0:
             self.vel_y = 0
             self.rect.y = SCREEN_HEIGHT - self.rect.height
+
+    def jump(self):
+        """jump"""
+        self.rect.y += 2
+        platform_hit_list = pygame.sprite.spritecollide(self, self.level.platform_list, False)
+        self.rect.y -= -2
+        if len(platform_hit_list) > 0 or self.rect.bottom >= SCREEN_HEIGHT:
+            self.vel_y = -10
+
+    # player controlled movement
+    def go_left(self):
+        self.vel_y = -6
+
+    def go_right(self):
+        self.vel_x = 6
+
+    def stop(self):
+        self.vel_x = 0
+
 def main():
     pygame.init()
 
     # ----- SCREEN PROPERTIES9+
-    size = (WIDTH, HEIGHT)
+    size = [SCREEN_WIDTH, SCREEN_HEIGHT]
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption(TITLE)
 
     # ----- LOCAL VARIABLES
     done = False
     clock = pygame.time.Clock()
+    player = Player()
+    all_sprite_list = pygame.sprite.Group()
+    all_sprite_list.add(player)
 
     # ----- MAIN LOOP
     while not done:
@@ -83,11 +107,25 @@ def main():
             if event.type == pygame.QUIT:
                 done = True
 
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    player.go_left()
+                if event.key == pygame.K_RIGHT:
+                    player.go_right()
+                if event.key == pygame.K_UP:
+                    player.jump()
+
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT and player.vel_x < 0:
+                    player.stop()
+                if event.key == pygame.K_RIGHT and player.vel_x > 0:
+                    player.stop()
+
         # ----- LOGIC
 
         # ----- DRAW
-        screen.fill(BLACK)
-
+        screen.fill(WHITE)
+        screen.blit(background_image, [0,0])
         # ----- UPDATE
         pygame.display.flip()
         clock.tick(60)
