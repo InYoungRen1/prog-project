@@ -94,6 +94,7 @@ class Mario(pygame.sprite.Sprite):
             self.x_vel *= -1
 
 class Gold_coin(pygame.sprite.Sprite):
+    # gold coins that will win the game
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load("./image/gold_coin.png")
@@ -190,6 +191,7 @@ def main():
         # win
         if score == WINNING_SCORE:
             done = True
+        # boundary
         if player.rect.x + 85 > SCREEN_WIDTH or player.rect.x < 0:
             player.vel_x = 0
 
