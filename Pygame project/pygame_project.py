@@ -8,9 +8,10 @@ YELLOW = (255, 255, 0)
 SKY_BLUE = (95, 165, 228)
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
+WINNING_SCORE = 10
 TITLE = "<Escape>"
 
-background_image = pygame.image.load("./image/background.png")
+background_image = pygame.image.load("./image/background2.jpg")
 background_image = pygame.transform.scale(background_image, (800, 600))
 
 # class
@@ -22,8 +23,9 @@ class Player(pygame.sprite.Sprite):
         """ Constructor function """
         super().__init__()
 
-        self.image = pygame.image.load("./image/oomba.png")
+        self.image = pygame.image.load("./image/oomba2.png")
         self.image = pygame.transform.scale(self.image, (85,85))
+        self.image.set_colorkey((WHITE))
         self.rect = self.image.get_rect()
 
         # speed vector of player
@@ -76,12 +78,13 @@ class Player(pygame.sprite.Sprite):
         self.vel_x = 0
 
 class Mario(pygame.sprite.Sprite):
-    """Enemy what walks at the bottom"""
+    """Enemy that walks at the bottom"""
     def __init__(self):
         super().__init__()
 
-        self.image = pygame.image.load("./image/mario.png.jpg")
+        self.image = pygame.image.load("./image/mariosprite.png")
         self.image = pygame.transform.scale(self.image, (85, 85))
+        self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
         self.x_vel = 3
 
@@ -99,14 +102,12 @@ class Gold_coin(pygame.sprite.Sprite):
 
       # random location
         self.rect.x = random.randrange(0, SCREEN_WIDTH)
-        self.rect.y = random.randrange(50, SCREEN_HEIGHT)
+        self.rect.y = random.randrange(50, 100)
         self.y_vel = random.randrange(1, 3)
 
     def update(self):
         """move gold coin down"""
         self.rect.y += self.y_vel
-
-
 
 def main():
     pygame.init()
@@ -126,12 +127,14 @@ def main():
     gold_coin_sprites = pygame.sprite.Group()
     # popular sprite Groups
     mario = Mario()
+    mario_sprite.add(mario)
     mario.rect.y = SCREEN_HEIGHT - mario.rect.height
+    mario.rect.x = SCREEN_WIDTH - mario.rect.width
     all_sprite.add(mario)
     player = Player()
     all_sprite.add(player)
-
-
+    player.rect.y = SCREEN_HEIGHT - player.rect.height
+    score = 0
     # ----- MAIN LOOP
     while not done:
         # -- Event Handler
@@ -152,11 +155,11 @@ def main():
                     player.stop()
                 if event.key == pygame.K_RIGHT and player.vel_x > 0:
                     player.stop()
-
-            if len(gold_coin_sprites) <= 6:
-                gold_coin = Gold_coin()
-                all_sprite.add(gold_coin)
-                gold_coin_sprites.add(gold_coin)
+        # gold coins that drops from sky
+        if len(gold_coin_sprites) <= 3:
+            gold_coin = Gold_coin()
+            all_sprite.add(gold_coin)
+            gold_coin_sprites.add(gold_coin)
 
         # ----- LOGIC
         all_sprite.update()
@@ -170,12 +173,29 @@ def main():
 
         # remove gold coin
         for gold_coin in gold_coin_sprites:
-            if gold_coin.rect.y < 0:
+            if gold_coin.rect.y > SCREEN_HEIGHT:
                 gold_coin.kill()
         # collision
         mario_hit_group = pygame.sprite.spritecollide(player, mario_sprite, True)
         if len(mario_hit_group) > 0:
             player.kill()
+            done = True
+
+        player_hit_group = pygame.sprite.spritecollide(player, gold_coin_sprites, True)
+        if len(player_hit_group) > 0:
+            score += 1
+            gold_coin.kill()
+            print(score)
+
+        # win
+        if score == WINNING_SCORE:
+            done = True
+        if player.rect.x + 85 > SCREEN_WIDTH or player.rect.x < 0:
+            player.vel_x = 0
+
+
+
+
     pygame.quit()
 
 
