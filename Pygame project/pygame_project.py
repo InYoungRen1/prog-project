@@ -9,7 +9,7 @@ SKY_BLUE = (95, 165, 228)
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 WINNING_SCORE = 10
-TITLE = "<Escape>"
+TITLE = "<Grab the Gold Coin>"
 
 background_image = pygame.image.load("./image/background2.jpg")
 background_image = pygame.transform.scale(background_image, (800, 600))
